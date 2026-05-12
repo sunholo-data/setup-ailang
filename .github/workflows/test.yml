@@ -40,35 +40,10 @@ jobs:
           echo "resolved version: ${{ steps.setup.outputs.version }}"
           echo "cache-hit: ${{ steps.setup.outputs.cache-hit }}"
 
-  # Second run on the same key should be a cache hit.
-  cache-roundtrip:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - id: first
-        uses: ./
-        with:
-          # Use a version no install-matrix job uses, so we know the
-          # 'first' restoreCache call is a true miss (matrix jobs run in
-          # parallel and would otherwise pre-populate the same key).
-          version: v0.18.9
-          cache: 'true'
-          github-token: ${{ github.token }}
-      - name: Verify first run was a fresh install
-        run: |
-          if [ "${{ steps.first.outputs.cache-hit }}" = "true" ]; then
-            echo "Expected first run to be a cache miss but it was a hit."
-            exit 1
-          fi
-      - id: second
-        uses: ./
-        with:
-          version: v0.18.9
-          cache: 'true'
-          github-token: ${{ github.token }}
-      - name: Verify second run was a cache hit
-        run: |
-          if [ "${{ steps.second.outputs.cache-hit }}" != "true" ]; then
-            echo "Expected second run to be a cache hit but it was a miss."
-            exit 1
-          fi
+  # Note: a dedicated miss→hit "cache-roundtrip" job was tried but is
+  # impossible to make deterministic without a `cache-key-suffix` input —
+  # GitHub caches persist across workflow runs (7-day TTL), so the
+  # "first" install always hits on subsequent runs. The miss→hit logic
+  # itself lives in @actions/cache and is upstream-tested. The matrix
+  # above exercises both `cache: true` and `cache: false` paths, which
+  # is the coverage we actually own.
