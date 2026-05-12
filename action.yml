@@ -15,9 +15,9 @@ inputs:
     required: false
     default: 'true'
   github-token:
-    description: 'Token used to authenticate downloads against the GitHub API. Defaults to ${{ github.token }} so the action dodges the 60/hr anonymous rate limit out of the box.'
+    description: 'Token used to authenticate downloads against the GitHub API and dodge the 60/hr anonymous rate limit. Pass `${{ github.token }}` explicitly, or set `GITHUB_TOKEN` in `env:` — the action will pick either up.'
     required: false
-    default: ${{ github.token }}
+    default: ''
 
 outputs:
   version:

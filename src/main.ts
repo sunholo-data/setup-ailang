@@ -17,7 +17,17 @@ async function run(): Promise<void> {
   try {
     const versionInput = core.getInput('version') || 'latest';
     const cacheEnabled = (core.getInput('cache') || 'true').toLowerCase() !== 'false';
-    const token = core.getInput('github-token');
+    // `${{ github.token }}` can't be an action.yml default for JS actions
+    // (only composites), so callers either pass it via `with:` or export it
+    // via `env:`. We accept either.
+    const token = core.getInput('github-token') || process.env.GITHUB_TOKEN || '';
+    if (!token) {
+      core.warning(
+        'No github-token provided. Anonymous calls to the GitHub API are limited to ' +
+          '60/hr per IP and may fail in busy CI. Pass `github-token: ${{ github.token }}` ' +
+          'or set `GITHUB_TOKEN` in env to avoid this.'
+      );
+    }
 
     const platform = detectPlatform();
     const version = await resolveVersion(versionInput, token);

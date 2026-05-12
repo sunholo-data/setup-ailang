@@ -27,6 +27,7 @@ jobs:
         with:
           version: ${{ matrix.version }}
           cache: ${{ matrix.cache }}
+          github-token: ${{ github.token }}
       - name: Smoke test
         run: |
           set -euo pipefail
@@ -45,6 +46,7 @@ jobs:
         with:
           version: v0.18.11
           cache: 'true'
+          github-token: ${{ github.token }}
       - name: Verify first run was a fresh install
         run: |
           if [ "${{ steps.first.outputs.cache-hit }}" = "true" ]; then
@@ -56,6 +58,7 @@ jobs:
         with:
           version: v0.18.11
           cache: 'true'
+          github-token: ${{ github.token }}
       - name: Verify second run was a cache hit
         run: |
           if [ "${{ steps.second.outputs.cache-hit }}" != "true" ]; then

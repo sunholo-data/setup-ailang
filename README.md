@@ -9,14 +9,20 @@ binary caching.
 ```yaml
 - uses: sunholo-data/setup-ailang@v1
   with:
-    version: latest      # or a specific tag like 'v0.18.11'
-    cache: true          # cache the binary across runs (default true)
+    version: latest                       # or a specific tag like 'v0.18.11'
+    cache: true                           # cache the binary across runs (default true)
+    github-token: ${{ github.token }}     # avoids the 60/hr anonymous API limit
 - run: ailang --version
 - run: ailang lock && ailang run main.ail
 ```
 
-That's it. Replaces ~15 lines of bash boilerplate (curl + jq + tar +
-sudo mv) and dodges the GitHub anonymous-API rate limit out of the box.
+Replaces ~15 lines of bash boilerplate (curl + jq + tar + sudo mv).
+
+`github-token` is technically optional — if omitted, the action falls back
+to `$GITHUB_TOKEN` in `env:`, and finally to anonymous calls (capped at
+60/hr per runner IP). Pass it explicitly for reliable CI. (JavaScript
+actions can't default to `${{ github.token }}` in `action.yml` — only
+composite actions can — which is why this isn't auto-wired.)
 
 ## Inputs
 
@@ -24,7 +30,7 @@ sudo mv) and dodges the GitHub anonymous-API rate limit out of the box.
 | -------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `version`      | `latest`             | AILANG version (with or without leading `v`). `latest` resolves the most recent GitHub release.                    |
 | `cache`        | `true`               | Cache the binary in `actions/cache` keyed on version + platform. Cache hit drops install time from ~25s to ~5s.   |
-| `github-token` | `${{ github.token }}`| Token for authenticated GitHub API + release-asset downloads. Avoids the 60/hr anonymous rate limit.              |
+| `github-token` | (none)               | Token for authenticated GitHub API + release-asset downloads. Avoids the 60/hr anonymous rate limit. Pass `${{ github.token }}` explicitly or set `GITHUB_TOKEN` in `env:`. |
 
 ## Outputs
 
