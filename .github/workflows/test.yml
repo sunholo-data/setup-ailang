@@ -44,7 +44,10 @@ jobs:
       - id: first
         uses: ./
         with:
-          version: v0.18.11
+          # Use a version no install-matrix job uses, so we know the
+          # 'first' restoreCache call is a true miss (matrix jobs run in
+          # parallel and would otherwise pre-populate the same key).
+          version: v0.18.10
           cache: 'true'
           github-token: ${{ github.token }}
       - name: Verify first run was a fresh install
@@ -56,7 +59,10 @@ jobs:
       - id: second
         uses: ./
         with:
-          version: v0.18.11
+          # Use a version no install-matrix job uses, so we know the
+          # 'first' restoreCache call is a true miss (matrix jobs run in
+          # parallel and would otherwise pre-populate the same key).
+          version: v0.18.10
           cache: 'true'
           github-token: ${{ github.token }}
       - name: Verify second run was a cache hit
