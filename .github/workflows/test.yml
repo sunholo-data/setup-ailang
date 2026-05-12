@@ -16,7 +16,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-latest, macos-latest, macos-13]
+        # macos-latest is darwin.arm64; ubuntu-latest is linux.x64.
+        # macos-13 (darwin.x64) is omitted because GitHub's macos-13
+        # runner pool currently queues for 15+ min — supported by the
+        # action, just not gated by CI. Re-add when pool capacity recovers.
+        runner: [ubuntu-latest, macos-latest]
         version: ['latest', 'v0.18.11']
         cache: ['true', 'false']
     runs-on: ${{ matrix.runner }}

@@ -45,7 +45,7 @@ composite actions can — which is why this isn't auto-wired.)
 | ------------------ | -------------------------------------- |
 | `ubuntu-*` (x64)   | yes                                    |
 | `macos-*` (arm64)  | yes                                    |
-| `macos-13` (x64)   | yes                                    |
+| `macos-13` (x64)   | yes (supported, but not currently gated by CI — see test.yml) |
 | `windows-*`        | not yet — action exits with a clear message |
 | `ubuntu-*` (arm64) | not yet — no `linux.arm64` tarball published |
 
