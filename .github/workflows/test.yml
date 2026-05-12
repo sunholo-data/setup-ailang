@@ -1,0 +1,64 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Smoke-test the action on every supported runner with both fresh-install
+  # and cache-restore code paths.
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, macos-latest, macos-13]
+        version: ['latest', 'v0.18.11']
+        cache: ['true', 'false']
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: ./
+        with:
+          version: ${{ matrix.version }}
+          cache: ${{ matrix.cache }}
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          ailang --version
+          test -n "${{ steps.setup.outputs.version }}"
+          echo "resolved version: ${{ steps.setup.outputs.version }}"
+          echo "cache-hit: ${{ steps.setup.outputs.cache-hit }}"
+
+  # Second run on the same key should be a cache hit.
+  cache-roundtrip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: first
+        uses: ./
+        with:
+          version: v0.18.11
+          cache: 'true'
+      - name: Verify first run was a fresh install
+        run: |
+          if [ "${{ steps.first.outputs.cache-hit }}" = "true" ]; then
+            echo "Expected first run to be a cache miss but it was a hit."
+            exit 1
+          fi
+      - id: second
+        uses: ./
+        with:
+          version: v0.18.11
+          cache: 'true'
+      - name: Verify second run was a cache hit
+        run: |
+          if [ "${{ steps.second.outputs.cache-hit }}" != "true" ]; then
+            echo "Expected second run to be a cache hit but it was a miss."
+            exit 1
+          fi

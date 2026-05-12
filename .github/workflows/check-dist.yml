@@ -1,0 +1,33 @@
+name: check-dist
+
+# GitHub Actions runs the bundled `dist/index.js` directly — it never
+# runs `npm install`. So `dist/` must always be in sync with `src/`.
+# This workflow rebuilds and fails if there's a diff.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check-dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Compare dist/ against committed
+        run: |
+          if [ -n "$(git status --porcelain dist/)" ]; then
+            echo "::error::dist/ is out of date — run 'npm run build' and commit the result."
+            git diff --stat dist/
+            exit 1
+          fi

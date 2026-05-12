@@ -1,0 +1,30 @@
+name: 'Setup AILANG'
+description: 'Install the AILANG compiler with platform auto-detection, SHA256 verification, and binary caching.'
+author: 'Sunholo Data'
+branding:
+  icon: 'terminal'
+  color: 'purple'
+
+inputs:
+  version:
+    description: "AILANG version (semver, with or without leading 'v') or 'latest'."
+    required: false
+    default: 'latest'
+  cache:
+    description: 'Cache the binary across runs (recommended).'
+    required: false
+    default: 'true'
+  github-token:
+    description: 'Token used to authenticate downloads against the GitHub API. Defaults to ${{ github.token }} so the action dodges the 60/hr anonymous rate limit out of the box.'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  version:
+    description: "Resolved AILANG version (e.g. 'v0.18.11'). Useful for downstream pinning."
+  cache-hit:
+    description: 'Whether the binary was restored from the runner cache.'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
